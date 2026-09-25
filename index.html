@@ -2,7 +2,10 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<!-- maximum-scale/user-scalable stop pinch zoom on Android and on iOS<10.
+     Modern iOS ignores them, so touch-action below and the gesture
+     handlers at the foot of the page are what actually hold it there. -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="theme-color" content="#c8102e">
 <meta name="color-scheme" content="light">
 
@@ -30,7 +33,7 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,800;0,900;1,700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <link rel="preload" as="image" href="img/hero-parade-1600w.webp" imagesrcset="img/hero-parade-1000w.webp 1000w, img/hero-parade-1600w.webp 1600w, img/hero-parade-2200w.webp 2200w" imagesizes="100vw" fetchpriority="high">
 
 <style>
@@ -51,6 +54,8 @@
   --red-bright:#e11533;
   --red-dark:#a50f26;
   --maroon:#8a1430;
+  /* One display face, declared once. Montserrat, matching the print suite. */
+  --display:'Montserrat',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
   --navy:#1a2949;
   --navy-deep:#101d38;
   --navy-ink:#0a1428;
@@ -79,11 +84,27 @@ html{
   -webkit-text-size-adjust:100%;
   scroll-behavior:smooth;
   overscroll-behavior-y:none;
+  /* ---- the page moves up and down only ----
+     Logan, 2026-09-24: on a phone it was too easy to drag sideways mid-scroll
+     and expose blank paper beside the layout, and to pinch by accident.
+       overflow-x:clip        kills the sideways scroll WITHOUT making <html> a
+                              scroll container the way overflow-x:hidden does
+                              (which would break position:sticky on the page).
+       overscroll-behavior-x  stops the rubber-band / back-swipe on that axis.
+       touch-action:pan-y     is the one that matters on iOS: it tells Safari
+                              this surface pans vertically and nothing else, so
+                              a pinch never starts. The viewport meta's
+                              user-scalable=no has been ignored by iOS since 10. */
+  overflow-x:clip;
+  overscroll-behavior-x:none;
+  touch-action:pan-y;
   scrollbar-width:none;        /* Firefox */
   -ms-overflow-style:none;     /* old Edge */
 }
 html::-webkit-scrollbar,body::-webkit-scrollbar{width:0;height:0;display:none}
 body{
+  overflow-x:clip;
+  touch-action:pan-y;
   background:var(--paper);
   color:var(--body);
   font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
@@ -120,13 +141,13 @@ a{color:inherit}
 }
 .sec--navy .eyb,.sec--deep .eyb{color:var(--gold)}
 .h2{
-  font-family:'Playfair Display',Georgia,serif;font-weight:800;
+  font-family:var(--display);font-weight:800;letter-spacing:-.02em;
   font-size:clamp(29px,5.6vw,46px);line-height:1.06;letter-spacing:-.022em;
   color:var(--navy);margin-top:12px;text-wrap:balance;
 }
 .sec--navy .h2,.sec--deep .h2{color:#fff}
 .h3{
-  font-family:'Playfair Display',Georgia,serif;font-weight:700;
+  font-family:var(--display);font-weight:700;letter-spacing:-.015em;
   font-size:clamp(19px,2.5vw,25px);line-height:1.18;letter-spacing:-.014em;
   color:var(--navy);
 }
@@ -179,14 +200,14 @@ section[id]{scroll-margin-top:var(--hd)}
 .hdr.solid::before{opacity:0}
 .hdr .inner{
   display:flex;align-items:center;justify-content:space-between;
-  width:100%;gap:16px;min-width:0;
+  width:100%;gap:clamp(20px,3.5vw,58px);min-width:0;
   padding-right:calc(var(--gut) + 46px);   /* clearance for .akwrap */
 }
-@media (min-width:900px){ .hdr .inner{padding-right:calc(var(--gut) + 62px)} }
+@media (min-width:1024px){ .hdr .inner{padding-right:calc(var(--gut) + 62px)} }
 .brand{text-decoration:none;display:block;flex:1 1 auto;min-width:0}
 .brand .nm{
   display:block;
-  font-family:'Playfair Display',Georgia,serif;font-weight:900;
+  font-family:var(--display);font-weight:800;letter-spacing:-.022em;
   font-size:clamp(19px,2.3vw,25px);color:#fff;line-height:1;letter-spacing:.01em;
 }
 .brand .sb{
@@ -195,15 +216,18 @@ section[id]{scroll-margin-top:var(--hd)}
   color:rgba(255,255,255,.74);margin-top:4px;font-weight:500;
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
 }
-@media (max-width:520px){ .brand .sb-r{display:none} }
+@media (max-width:520px), (min-width:1024px) and (max-width:1200px){
+  .brand .sb-r{display:none}
+}
 @media (max-width:400px){ .brand .sb{font-size:8px;letter-spacing:.13em} }
 
 .nav{display:none}
-@media (min-width:900px){
-  .nav{display:flex;align-items:center;gap:clamp(18px,2.4vw,34px)}
+@media (min-width:1024px){
+  .nav{display:flex;align-items:center;gap:clamp(13px,1.7vw,30px)}
   .nav a{
-    color:rgba(255,255,255,.9);text-decoration:none;font-size:14.5px;font-weight:500;
-    letter-spacing:.01em;position:relative;padding:6px 0;
+    color:rgba(255,255,255,.92);text-decoration:none;
+    font-size:clamp(13px,1.05vw,14.5px);font-weight:600;
+    letter-spacing:.005em;white-space:nowrap;position:relative;padding:6px 0;
   }
   .nav a::after{
     content:'';position:absolute;left:0;right:0;bottom:0;height:2px;
@@ -211,7 +235,8 @@ section[id]{scroll-margin-top:var(--hd)}
     transition:transform .22s;
   }
   .nav a:hover::after{transform:scaleX(1)}
-  .nav .btn{padding:11px 22px;font-size:14px;min-height:0;color:var(--navy)}
+  .nav .btn{padding:10px clamp(14px,1.5vw,22px);font-size:clamp(13px,1.05vw,14px);
+    min-height:0;color:var(--navy);white-space:nowrap}
   .nav .btn:hover{color:var(--red)}
   .nav .btn::after{display:none}
 }
@@ -226,7 +251,7 @@ section[id]{scroll-margin-top:var(--hd)}
   pointer-events:none;z-index:2;
 }
 .akmark{flex:none;width:28px;height:auto;opacity:.95}
-@media (min-width:900px){ .akmark{width:38px} }
+@media (min-width:1024px){ .akmark{width:38px} }
 
 .menubtn{
   display:flex;flex-direction:column;justify-content:center;gap:5px;
@@ -237,7 +262,7 @@ section[id]{scroll-margin-top:var(--hd)}
 .menubtn[aria-expanded="true"] i:nth-child(1){transform:translateY(7px) rotate(45deg)}
 .menubtn[aria-expanded="true"] i:nth-child(2){opacity:0}
 .menubtn[aria-expanded="true"] i:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
-@media (min-width:900px){ .menubtn{display:none} }
+@media (min-width:1024px){ .menubtn{display:none} }
 
 /* ---------- full-screen sheet (N1) ---------- */
 .sheet{
@@ -257,7 +282,7 @@ section[id]{scroll-margin-top:var(--hd)}
 .sheet nav{display:flex;flex-direction:column}
 .sheet nav a{
   text-decoration:none;color:#fff;
-  font-family:'Playfair Display',Georgia,serif;font-weight:700;
+  font-family:var(--display);font-weight:700;letter-spacing:-.015em;
   font-size:clamp(27px,7.6vw,36px);letter-spacing:-.018em;
   padding:15px 0;border-bottom:1px solid rgba(255,255,255,.1);
 }
@@ -328,7 +353,7 @@ body.locked{overflow:hidden}
   text-shadow:0 1px 10px rgba(10,20,40,.7);
 }
 .hero h1{
-  font-family:'Playfair Display',Georgia,serif;font-weight:900;
+  font-family:var(--display);font-weight:800;letter-spacing:-.022em;
   color:#fff;line-height:.9;letter-spacing:-.028em;
   font-size:clamp(52px,14vw,132px);
   margin-top:14px;
@@ -399,7 +424,7 @@ body.locked{overflow:hidden}
 .visionband{padding:clamp(38px,5.2vw,70px) 0}
 .visionband .eyb{color:var(--gold)}
 .vstate{
-  font-family:'Playfair Display',Georgia,serif;font-weight:700;
+  font-family:var(--display);font-weight:700;letter-spacing:-.015em;
   font-size:clamp(20px,2.9vw,33px);line-height:1.32;letter-spacing:-.016em;
   color:#fff;margin-top:13px;max-width:34ch;
 }
@@ -496,6 +521,131 @@ body.locked{overflow:hidden}
 .vgo{display:flex;justify-content:flex-end;margin-top:clamp(20px,2.6vw,30px)}
 .vgo .btn{color:var(--navy)}
 
+
+/* ==================================================================
+   ENDORSEMENTS
+   Two audiences, one section. The ORGS are logos, so they sit on white
+   plates: AKPFFA's art is black line work and Local 1264's is a full-colour
+   seal, and neither survives on the ombre. The EDUCATORS are people, so they
+   are portrait + words. The section is plain (not --tint) because it sits
+   between the tinted gallery and the deep support band, and three tinted
+   surfaces in a row flattens the page.
+   ================================================================== */
+.endhead{text-align:center}
+.endhead .rule{margin-left:auto;margin-right:auto}
+
+.endorgs{
+  display:grid;grid-template-columns:1fr;gap:clamp(14px,2vw,22px);
+  margin-top:clamp(26px,4vw,44px);
+}
+@media (min-width:700px){ .endorgs{grid-template-columns:repeat(2,1fr)} }
+.endorg{
+  background:#fff;border:1px solid rgba(26,41,73,.13);
+  border-top:3px solid var(--red);
+  padding:clamp(20px,2.6vw,30px);text-align:center;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  box-shadow:0 14px 30px -24px rgba(10,20,40,.5);
+}
+.endorg img{width:clamp(132px,15vw,186px);height:auto;display:block}
+.endorg figcaption{
+  margin-top:16px;font-weight:700;font-size:13px;line-height:1.35;
+  letter-spacing:.04em;color:var(--navy);text-transform:uppercase;
+}
+
+/* The one organisation quote we have. Set large: it is the strongest single
+   thing on the page after the candidate's own words. */
+.endlead{
+  margin-top:clamp(22px,3vw,34px);
+  background:var(--ombre);color:#fff;
+  padding:clamp(24px,3.4vw,40px) clamp(22px,3.4vw,44px);
+}
+.endlead p{
+  color:#fff;font-size:clamp(16px,1.75vw,21px);line-height:1.5;
+  font-weight:500;margin:0;text-wrap:pretty;
+}
+.endlead cite{
+  display:block;margin-top:18px;font-style:normal;
+  border-top:2px solid var(--gold);padding-top:13px;
+}
+.endlead cite b{display:block;color:#fff;font-weight:800;font-size:14px;
+  letter-spacing:.06em;text-transform:uppercase}
+.endlead cite span{display:block;margin-top:4px;font-size:12.5px;
+  color:rgba(255,255,255,.8);letter-spacing:.03em}
+
+.endsub{margin-top:clamp(34px,4.6vw,56px);text-align:center}
+.endsub .rule{margin-left:auto;margin-right:auto}
+
+.endgrid{
+  display:grid;grid-template-columns:1fr;gap:clamp(14px,2vw,22px);
+  margin-top:clamp(22px,3vw,34px);
+}
+@media (min-width:700px){ .endgrid{grid-template-columns:repeat(2,1fr)} }
+.endcard{
+  background:#fff;border:1px solid rgba(26,41,73,.13);
+  padding:clamp(18px,2.2vw,26px);
+  display:flex;gap:clamp(14px,1.8vw,20px);align-items:flex-start;
+  box-shadow:0 14px 30px -24px rgba(10,20,40,.5);
+}
+.endcard .face{
+  flex:none;width:clamp(64px,7vw,86px);aspect-ratio:1;
+  border-radius:50%;overflow:hidden;background:var(--navy);
+}
+.endcard .face img{width:100%;height:100%;object-fit:cover;display:block}
+/* No portrait yet: initials on the brand ombre rather than an empty hole. */
+.endcard .face--initials{
+  background:var(--ombre);display:flex;align-items:center;justify-content:center;
+  color:#fff;font-weight:800;font-size:clamp(20px,2.2vw,26px);letter-spacing:.02em;
+}
+.endcard .said{flex:1;min-width:0}
+.endcard .said p{
+  margin:0;font-size:clamp(13.5px,1.35vw,15px);line-height:1.52;
+  color:var(--ink);text-wrap:pretty;
+}
+.endcard .who{
+  margin-top:13px;padding-top:11px;border-top:1px solid rgba(26,41,73,.15);
+}
+.endcard .who b{display:block;color:var(--navy);font-weight:800;font-size:13px;
+  letter-spacing:.05em;text-transform:uppercase}
+.endcard .who span{display:block;margin-top:3px;font-size:12.5px;color:#5a6478}
+
+
+/* ==================================================================
+   SCROLL INDICATOR
+   The native bars are hidden site-wide (see html{scrollbar-width:none}).
+   This is a thumb and nothing else: no track, no gutter, no reserved
+   column. It fades out when the page has been still for a moment and
+   comes straight back on the next scroll.
+
+   The ombre inside it RUNS AGAINST the scroll. The gradient is three
+   stops, red -> navy -> red, tiled at a fixed pixel height, so the two
+   ends match and the background can be offset forever without a seam;
+   the offset is driven off the scroll delta with the sign flipped.
+   ================================================================== */
+.sbar{
+  position:fixed;top:0;right:5px;width:5px;height:100vh;
+  z-index:96;pointer-events:none;          /* the TRACK never catches clicks */
+  opacity:0;transition:opacity .4s ease;
+}
+.sbar.on,.sbar.drag{opacity:.9}
+.sbar.drag{transition:none}
+.sbar i{
+  position:absolute;left:0;width:100%;border-radius:999px;
+  pointer-events:auto;cursor:grab;
+  touch-action:none;                        /* the page pans y; this does not */
+  background-image:linear-gradient(180deg,var(--red) 0%,var(--navy) 50%,var(--red) 100%);
+  background-size:100% 220px;
+  background-repeat:repeat-y;
+  box-shadow:0 1px 6px rgba(10,20,40,.34);
+  will-change:transform,background-position;
+}
+/* A 5px-wide target is unusable, so an invisible pad widens the grab area
+   without widening the mark itself. */
+.sbar i::before{content:'';position:absolute;inset:-7px -11px -7px -13px}
+.sbar.drag i{cursor:grabbing}
+body.sbardrag{user-select:none;-webkit-user-select:none}
+/* it is an ornament, so it never takes space or blocks anything */
+@media print{ .sbar{display:none} }
+
 /* ---- fullscreen viewer ---- */
 .lbx{
   position:fixed;inset:0;z-index:200;
@@ -576,7 +726,7 @@ body.lbxon{overflow:hidden}
   display:inline-flex;flex-direction:column;gap:4px;
 }
 .support .vote .k{font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:var(--gold);font-weight:700}
-.support .vote .d{font-family:'Playfair Display',Georgia,serif;font-weight:700;color:#fff;font-size:clamp(17px,2.2vw,22px)}
+.support .vote .d{font-family:var(--display);font-weight:700;letter-spacing:-.015em;color:#fff;font-size:clamp(17px,2.2vw,22px)}
 
 footer{
   position:relative;
@@ -586,7 +736,7 @@ footer{
 footer::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--ombre-line)}
 .ftop{display:grid;gap:clamp(22px,3vw,38px)}
 @media (min-width:820px){ .ftop{grid-template-columns:1.5fr 1fr 1fr} }
-.fname{font-family:'Playfair Display',Georgia,serif;font-weight:900;color:#fff;font-size:clamp(30px,3.4vw,38px);line-height:1.02;letter-spacing:-.018em}
+.fname{font-family:var(--display);font-weight:800;letter-spacing:-.022em;color:#fff;font-size:clamp(30px,3.4vw,38px);line-height:1.02;letter-spacing:-.018em}
 .ftop p{font-size:14px;margin-top:11px;max-width:42ch;color:rgba(255,255,255,.62);line-height:1.55}
 .fcol h4{
   font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:#fff;
@@ -756,9 +906,10 @@ footer::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;back
     </a>
 
     <nav class="nav" aria-label="Main">
-      <a href="#about">About Gina</a>
-      <a href="#vision">My Vision</a>
-      <a href="#answers">Her Answers</a>
+      <a href="#about">About</a>
+      <a href="#vision">Vision</a>
+      <a href="#endorsements">Endorsements</a>
+      <a href="#answers">Answers</a>
       <a href="#gallery">Photos</a>
       <a href="https://alaskabeacon.com/voter-guides/contests/alaska-house-district-24/" target="_blank" rel="noopener">Voter Guide</a>
       <a class="btn" href="https://secure.anedot.com/gina-wall-for-alaska/734317f3-1f60-49b7-8c6b-e31a194ed3d2" target="_blank" rel="noopener">Donate</a>
@@ -780,6 +931,7 @@ footer::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;back
   <nav aria-label="Mobile">
     <a href="#about">About Gina</a>
     <a href="#vision">My Vision</a>
+    <a href="#endorsements">Endorsements</a>
     <a href="#answers">Her Answers</a>
     <a href="#gallery">Photos</a>
     <a href="https://alaskabeacon.com/voter-guides/contests/alaska-house-district-24/" target="_blank" rel="noopener">2026 Voter Guide</a>
@@ -979,6 +1131,75 @@ footer::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;back
   </div>
 </div>
 
+<!-- ========================= ENDORSEMENTS ========================= -->
+<section class="sec sec--tint" id="endorsements">
+  <div class="inner">
+    <div class="endhead rv">
+      <div class="eyb">Who is standing with Gina</div>
+      <h2 class="h2">Endorsements</h2>
+      <div class="rule"></div>
+    </div>
+
+    <div class="endorgs rv d1">
+      <figure class="endorg">
+        <img src="img/end-akpffa.png" width="548" height="508" loading="lazy" decoding="async"
+             alt="Alaska Professional Firefighters Association">
+        <figcaption>Alaska Professional<br>Firefighters Association</figcaption>
+      </figure>
+      <figure class="endorg">
+        <img src="img/end-1264.png" width="498" height="498" loading="lazy" decoding="async"
+             alt="Anchorage Fire Fighters Union Local 1264">
+        <figcaption>Anchorage Fire Fighters<br>Union, Local 1264</figcaption>
+      </figure>
+    </div>
+
+    <blockquote class="endlead rv d2">
+      <p>“The Alaska Professional Firefighters Association is proud to endorse Gina Wall
+      for State House. Gina understands the challenges facing first responders and the
+      communities we serve, and she has shown a real commitment to keeping Alaskans safe.
+      We are confident she will work hard to improve public safety, not only for her
+      district, but for communities across Alaska.”</p>
+      <cite><b>Justin Mack</b><span>Alaska Professional Firefighters Association</span></cite>
+    </blockquote>
+
+    <div class="endsub rv d2">
+      <div class="eyb">Alaska educators</div>
+      <div class="rule"></div>
+    </div>
+
+    <div class="endgrid rv d3">
+      <figure class="endcard">
+        <div class="face"><img src="img/end-danielle-480.webp" width="480" height="480" loading="lazy" decoding="async" alt="Danielle Lewis"></div>
+        <div class="said">
+          <p>“Gina Wall is an experienced and dedicated secondary counselor committed to strengthening public education in Alaska. She works tirelessly to support students’ academic success, social-emotional well-being, and college and career readiness. Gina collaborates with families to ensure every student has the guidance, resources, and encouragement they need to thrive in our community. I have had the privilege of working alongside Gina for 15 years and have seen her dedication to students and families firsthand.”</p>
+          <figcaption class="who"><b>Danielle Lewis</b><span>Retired ASD Educator</span></figcaption>
+        </div>
+      </figure>
+      <figure class="endcard">
+        <div class="face"><img src="img/end-erica-480.webp" width="480" height="480" loading="lazy" decoding="async" alt="Erica Arnold"></div>
+        <div class="said">
+          <p>“As an Alaska educator, I know that Gina Wall will always put our kids, our schools, and our community first. We’ve found a true public education hero in Gina. She brings innovative thinking, heart, and a deep commitment to serving Alaskans. I’m proud to call her a friend and trust her to do her very best for Chugiak, Eagle River, and Alaska as a whole. I’m proud to endorse Gina Wall for Alaska State House in District 24.”</p>
+          <figcaption class="who"><b>Erica Arnold</b><span>19-Year ASD Elementary Teacher</span></figcaption>
+        </div>
+      </figure>
+      <figure class="endcard">
+        <div class="face"><img src="img/end-kevin-480.webp" width="480" height="480" loading="lazy" decoding="async" alt="Kevin Fulmer"></div>
+        <div class="said">
+          <p>“Gina Wall, as an educator, is concerned about the well being and education of each and every student! She is a very caring person, and is in this race for the kids and helping them be successful! Gina is a very family oriented person! You will find her at many ball games and activities cheering and supporting her kids in their life’s journey! She is all about family, and knows the blessings and benefits of having this valuable support at home!”</p>
+          <figcaption class="who"><b>Kevin Fulmer</b><span>Retired ASD Educator</span></figcaption>
+        </div>
+      </figure>
+      <figure class="endcard">
+        <div class="face face--initials" aria-hidden="true">BD</div>
+        <div class="said">
+          <p>“When I think about the qualities that matter in public service, I think about courage, the willingness to face difficult challenges. I think about conviction, standing firmly by the principles you believe in. And I think about confidence, the ability to move forward and work for the people you represent. Those are the qualities I see in Gina Wall. That is why I’m proud to stand behind Gina and the work she is doing for Alaska.”</p>
+          <figcaption class="who"><b>Bill Douthit</b><span>26-Year ASD Elementary Teacher</span></figcaption>
+        </div>
+      </figure>
+    </div>
+  </div>
+</section>
+
 <!-- ============================ VOTER GUIDE ANSWERS ============================ -->
 <section class="sec" id="answers">
   <div class="inner">
@@ -1122,95 +1343,105 @@ footer::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;back
         <img src="img/about-gina-700w.webp" srcset="img/about-gina-700w.webp 700w, img/about-gina-1200w.webp 1200w"
              sizes="(min-width:760px) 31vw, 46vw" width="1200" height="1600" loading="lazy" decoding="async"
              alt="Gina Wall with a young supporter in campaign shirts">
-        <figcaption>Out in the district</figcaption>
       </figure>
       <figure>
         <img src="img/gal-parade-700w.webp" srcset="img/gal-parade-700w.webp 700w, img/gal-parade-1200w.webp 1200w"
              sizes="(min-width:760px) 31vw, 46vw" width="1200" height="900" loading="lazy" decoding="async"
              alt="The Wall family in red Gina Wall shirts at the parade, holding a Vote for Gina Wall sign">
-        <figcaption>The whole family in red</figcaption>
       </figure>
       <figure>
         <img src="img/gal-sign-700w.webp" srcset="img/gal-sign-700w.webp 700w, img/gal-sign-1200w.webp 1200w"
              sizes="(min-width:760px) 31vw, 46vw" width="1200" height="900" loading="lazy" decoding="async"
              alt="Gina Wall and her son with a Vote for Gina Wall yard sign">
-        <figcaption>Signs out in Eagle River</figcaption>
       </figure>
       <figure>
         <img src="img/story-fish-700w.webp" srcset="img/story-fish-700w.webp 700w, img/story-fish-1200w.webp 1200w"
              sizes="(min-width:760px) 31vw, 46vw" width="1200" height="900" loading="lazy" decoding="async"
              alt="Gina Wall on the Kenai River holding a salmon painted with Vote for Gina">
-        <figcaption>Vote for Gina</figcaption>
       </figure>
       <figure>
         <img src="img/gal-vote-700w.webp" srcset="img/gal-vote-700w.webp 700w, img/gal-vote-1200w.webp 1200w"
              sizes="(min-width:760px) 31vw, 46vw" width="1200" height="900" loading="lazy" decoding="async"
              alt="Gina Wall with her husband and son outside a Vote Here polling place">
-        <figcaption>Voting together in District 24</figcaption>
       </figure>
       <figure>
         <img src="img/about-family-700w.webp" srcset="img/about-family-700w.webp 700w, img/about-family-1200w.webp 1200w"
              sizes="(min-width:760px) 31vw, 46vw" width="1200" height="900" loading="lazy" decoding="async"
              alt="The Wall family fishing from a drift boat on an Alaska river">
-        <figcaption>Drifting the upper Kenai</figcaption>
       </figure>
       <figure>
         <img src="img/gal-boat-700w.webp" srcset="img/gal-boat-700w.webp 700w, img/gal-boat-1200w.webp 1200w"
              sizes="(min-width:760px) 31vw, 46vw" width="1200" height="900" loading="lazy" decoding="async"
              alt="Gina and Doug Wall beside their drift boat on the Kenai River">
-        <figcaption>A day on the river with Doug</figcaption>
       </figure>
       <figure>
         <img src="img/gal-trout-700w.webp" srcset="img/gal-trout-700w.webp 700w, img/gal-trout-1200w.webp 1200w"
              sizes="(min-width:760px) 31vw, 46vw" width="1200" height="900" loading="lazy" decoding="async"
              alt="Gina Wall holding a rainbow trout over a landing net">
-        <figcaption>Rainbow, then back in the water</figcaption>
       </figure>
       <figure>
         <img src="img/gal-net-700w.webp" srcset="img/gal-net-700w.webp 700w, img/gal-net-1200w.webp 1200w"
              sizes="(min-width:760px) 31vw, 46vw" width="1200" height="900" loading="lazy" decoding="async"
              alt="Gina and Doug Wall netting a red salmon together">
-        <figcaption>“How we feed our families”</figcaption>
       </figure>
       <figure>
         <img src="img/about-travel-700w.webp" srcset="img/about-travel-700w.webp 700w, img/about-travel-1200w.webp 1200w"
              sizes="(min-width:760px) 31vw, 46vw" width="1200" height="1600" loading="lazy" decoding="async"
              alt="Gina Wall holding a salmon on an Alaska river">
-        <figcaption>Fishing when the salmon are running</figcaption>
       </figure>
       <figure>
         <img src="img/gal-shirts-700w.webp" srcset="img/gal-shirts-700w.webp 700w, img/gal-shirts-1200w.webp 1200w"
              sizes="(min-width:760px) 31vw, 46vw" width="1200" height="900" loading="lazy" decoding="async"
              alt="Gina and Doug Wall in red Gina Wall campaign shirts at a district event">
-        <figcaption>Out on the campaign with Doug</figcaption>
       </figure>
       <figure>
         <img src="img/gal-spring-700w.webp" srcset="img/gal-spring-700w.webp 700w, img/gal-spring-1200w.webp 1200w"
              sizes="(min-width:760px) 31vw, 46vw" width="1200" height="900" loading="lazy" decoding="async"
              alt="Gina and Doug Wall outdoors in Chugiak in the spring">
-        <figcaption>Home in Chugiak for 24 years</figcaption>
       </figure>
       <figure>
         <img src="img/gal-glacier-700w.webp" srcset="img/gal-glacier-700w.webp 700w, img/gal-glacier-1200w.webp 1200w"
              sizes="(min-width:760px) 31vw, 46vw" width="1200" height="900" loading="lazy" decoding="async"
              alt="Gina and Doug Wall in front of an Alaska glacier">
-        <figcaption>“Our identity as Alaskans”</figcaption>
       </figure>
       <figure>
         <img src="img/bio-career-700w.webp" srcset="img/bio-career-700w.webp 700w, img/bio-career-1200w.webp 1200w"
              sizes="(min-width:760px) 31vw, 46vw" width="1200" height="900" loading="lazy" decoding="async"
              alt="The Wall family travelling together">
-        <figcaption>A family habit of travel</figcaption>
       </figure>
       <figure>
         <img src="img/gal-family-700w.webp" srcset="img/gal-family-700w.webp 700w, img/gal-family-1200w.webp 1200w"
              sizes="(min-width:760px) 31vw, 46vw" width="1200" height="900" loading="lazy" decoding="async"
              alt="Gina and Doug Wall with their sons Jackson and Logan at graduation">
-        <figcaption>“Our kids deserve the best of us”</figcaption>
+      </figure>
+      <figure>
+        <img src="img/gal-family26-700w.webp" srcset="img/gal-family26-700w.webp 700w, img/gal-family26-1200w.webp 1200w"
+             data-full="img/gal-family26-full.webp"
+             sizes="(min-width:760px) 31vw, 46vw" width="1200" height="900" loading="lazy" decoding="async"
+             alt="Gina and Doug Wall with their two sons">
+      </figure>
+      <figure>
+        <img src="img/gal-sons26-700w.webp" srcset="img/gal-sons26-700w.webp 700w, img/gal-sons26-1200w.webp 1200w"
+             data-full="img/gal-sons26-full.webp"
+             sizes="(min-width:760px) 31vw, 46vw" width="1200" height="900" loading="lazy" decoding="async"
+             alt="Gina Wall with her two sons">
+      </figure>
+      <figure>
+        <img src="img/gal-dog26-700w.webp" srcset="img/gal-dog26-700w.webp 700w, img/gal-dog26-1200w.webp 1200w"
+             data-full="img/gal-dog26-full.webp"
+             sizes="(min-width:760px) 31vw, 46vw" width="1200" height="900" loading="lazy" decoding="async"
+             alt="The Wall family outdoors with their golden retriever">
+      </figure>
+      <figure>
+        <img src="img/gal-garden26-700w.webp" srcset="img/gal-garden26-700w.webp 700w, img/gal-garden26-1200w.webp 1200w"
+             data-full="img/gal-garden26-full.webp"
+             sizes="(min-width:760px) 31vw, 46vw" width="1200" height="900" loading="lazy" decoding="async"
+             alt="Gina and Doug Wall sitting in the garden at home">
       </figure>
     </div>
   </div>
 </section>
+
 
 <!-- ============================ SUPPORT ============================ -->
 <span class="anchor" id="contact"></span>
@@ -1237,6 +1468,8 @@ footer::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;back
 </section>
 
 </main>
+
+<div class="sbar" id="sbar" aria-hidden="true"><i></i></div>
 
 <div class="lbx" id="lbx" role="dialog" aria-modal="true" aria-label="Photo viewer">
   <div class="lbx__bar">
@@ -1528,6 +1761,132 @@ footer::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;back
     for(var j=0;j<rows.length;j++){ rows[j].classList.remove('hot'); }
   });
   remeasure();
+})();
+</script>
+
+
+<!-- =================== scroll indicator =================== -->
+<script>
+(function(){
+  var bar = document.getElementById('sbar');
+  if (!bar) return;
+  var thumb = bar.firstElementChild,
+      MIN = 38, PAD = 6, IDLE = 900,
+      lastY = window.scrollY, off = 0, timer = null, shown = false,
+      trackH = 0, range = 0, thumbH = MIN;
+
+  function measure(){
+    trackH  = window.innerHeight - PAD * 2;
+    var doc = document.documentElement.scrollHeight;
+    range   = doc - window.innerHeight;
+    if (range <= 4){ bar.style.display = 'none'; return false; }
+    bar.style.display = '';
+    thumbH = Math.max(MIN, Math.round(trackH * (window.innerHeight / doc)));
+    thumb.style.height = thumbH + 'px';
+    return true;
+  }
+
+  function place(){
+    var y = window.scrollY,
+        t = PAD + (y / range) * (trackH - thumbH);
+    thumb.style.transform = 'translateY(' + Math.round(t) + 'px)';
+    // against the scroll: down moves the ombre up
+    off -= (y - lastY) * 0.55;
+    thumb.style.backgroundPositionY = Math.round(off) + 'px';
+    lastY = y;
+  }
+
+  function wake(){
+    if (dragging) return;                 // never fade out mid-drag
+    if (!shown){ bar.classList.add('on'); shown = true; }
+    clearTimeout(timer);
+    timer = setTimeout(function(){ bar.classList.remove('on'); shown = false; }, IDLE);
+  }
+
+  /* ---- grab the thumb and scrub ----
+     The pointer's offset INSIDE the thumb is captured on the way down and
+     held for the whole drag, so the thumb does not jump under the finger on
+     the first move. Position maps back through the same track geometry that
+     place() uses, which is what keeps the two in agreement. */
+  var dragging = false, grabOff = 0;
+
+  thumb.addEventListener('pointerdown', function(e){
+    if (!measure()) return;
+    dragging = true;
+    grabOff = e.clientY - thumb.getBoundingClientRect().top;
+    bar.classList.add('drag');
+    document.body.classList.add('sbardrag');
+    clearTimeout(timer);
+    thumb.setPointerCapture(e.pointerId);
+    e.preventDefault();
+  });
+
+  thumb.addEventListener('pointermove', function(e){
+    if (!dragging) return;
+    var span = trackH - thumbH;
+    if (span <= 0) return;
+    var t = Math.min(Math.max(e.clientY - grabOff - PAD, 0), span);
+    window.scrollTo(0, (t / span) * range);
+    place();                              // scroll events are coalesced; do not wait
+    e.preventDefault();
+  });
+
+  function endDrag(e){
+    if (!dragging) return;
+    dragging = false;
+    bar.classList.remove('drag');
+    document.body.classList.remove('sbardrag');
+    if (e && e.pointerId != null && thumb.hasPointerCapture(e.pointerId)) {
+      thumb.releasePointerCapture(e.pointerId);
+    }
+    wake();                               // restart the idle countdown
+  }
+  thumb.addEventListener('pointerup', endDrag);
+  thumb.addEventListener('pointercancel', endDrag);
+
+  // ⚠️ Deliberately NOT rAF-driven. A rAF-gated handler with a "queued" flag
+  // wedges permanently if the frame callback never arrives -- which is exactly
+  // what a backgrounded or non-rendering tab does, and it is how this was
+  // caught. The work here is two style writes, so it runs straight from the
+  // passive listener with a small time throttle instead.
+  var lastRun = 0;
+  function onScroll(){
+    var now = Date.now();
+    if (now - lastRun < 16) return;
+    lastRun = now;
+    if (measure()){ place(); wake(); }
+  }
+
+  if (measure()){ place(); }
+  addEventListener('scroll', onScroll, {passive:true});
+  addEventListener('resize', function(){ if (measure()) place(); }, {passive:true});
+  // lazy images keep changing the page height as you go
+  setInterval(function(){ if (measure() && shown) place(); }, 1200);
+})();
+</script>
+
+<!-- ============ hold the viewport steady on touch devices ============
+     CSS alone does not finish the job on iOS: Safari still fires its own
+     gesture events for pinch, and a fast double-tap still zooms. Both are
+     cancelled here, and only where the pointer is coarse, so a trackpad on a
+     Mac keeps its normal pinch-to-zoom. -->
+<script>
+(function(){
+  if (!window.matchMedia || !matchMedia('(pointer:coarse)').matches) return;
+  ['gesturestart','gesturechange','gestureend'].forEach(function(t){
+    document.addEventListener(t, function(e){ e.preventDefault(); }, {passive:false});
+  });
+  // a second finger means a pinch is starting: stop it before it scales
+  document.addEventListener('touchmove', function(e){
+    if (e.touches && e.touches.length > 1) e.preventDefault();
+  }, {passive:false});
+  // double-tap zoom: a tap within 320ms of the previous one
+  var last = 0;
+  document.addEventListener('touchend', function(e){
+    var now = Date.now();
+    if (now - last <= 320) e.preventDefault();
+    last = now;
+  }, {passive:false});
 })();
 </script>
 
