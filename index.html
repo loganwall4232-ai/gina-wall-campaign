@@ -579,7 +579,7 @@ body.locked{overflow:hidden}
   display:grid;grid-template-columns:1fr;gap:clamp(14px,2vw,22px);
   margin-top:clamp(22px,3vw,34px);
 }
-@media (min-width:700px){ .endgrid{grid-template-columns:repeat(2,1fr)} }
+@media (min-width:700px){ .endgrid{grid-template-columns:repeat(2,1fr);align-items:start} }
 .endcard{
   background:#fff;border:1px solid rgba(26,41,73,.13);
   padding:clamp(18px,2.2vw,26px);
@@ -1213,7 +1213,7 @@ footer::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;back
         <div class="face"><img src="img/end-tracie-480.webp" width="480" height="480" loading="lazy" decoding="async" alt="Tracie Lawrence"></div>
         <div class="said">
           <p>“Over many years of friendship, I’ve had the privilege of learning who Gina truly is: intentional, honest, principled, and courageous. She balances a soft front and a strong back with grace and grit, open enough to truly listen and understand another person’s perspective while remaining firmly grounded in her values. Those qualities matter in public service, especially when navigating difficult issues and representing people with different perspectives. That balance of compassion and strength is one of the things I admire most about Gina, and I’m honored to endorse her for State House District 24.”</p>
-          <figcaption class="who"><b>Tracie Lawrence</b><span>Longtime Friend</span></figcaption>
+          <figcaption class="who"><b>Tracie Lawrence</b><span>Friends of Gina</span></figcaption>
         </div>
       </figure>
       <figure class="endcard">
@@ -1232,14 +1232,14 @@ footer::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;back
           <p>“As a lifelong Alaskan, I’ve watched our state change over the years, and I believe we need to get back to the priorities that matter most to Alaskans. That’s why I’m supporting Gina Wall for Alaska State House.</p>
           <p>Gina listens, cares and is action-oriented. I can attest to her strong moral compass, her belief in responsible and accountable government, and her understanding that elected officials should work for the people they represent.</p>
           <p>I’m supporting Gina because I trust her character, her integrity, and her determination to take action and help move Alaska in the right direction.”</p>
-          <figcaption class="who"><b>Wendy Lewis</b><span>Lifelong Alaskan</span></figcaption>
+          <figcaption class="who"><b>Wendy Lewis</b><span>Friends of Gina</span></figcaption>
         </div>
       </figure>
       <figure class="endcard">
         <div class="face"><img src="img/end-bull-480.webp" width="480" height="480" loading="lazy" decoding="async" alt="Mike &amp; Ashley Bull"></div>
         <div class="said">
           <p>“We have been blessed to call Gina Wall our dear friend for nearly 20 years. Gina and her family have been a constant, loving presence in our lives, helping raise and support our son every step of the way. She is someone we know we can count on, and someone who genuinely cares about our community and our state. Gina is dedicated to making Alaska the best it can be, and we know she will always have the best interests of Alaskans at heart. If we can trust Gina with what matters most to us, our son, we wholeheartedly trust her to represent our community in the Alaska State House. We are proud to wholeheartedly endorse our friend, Gina Wall.”</p>
-          <figcaption class="who"><b>Mike &amp; Ashley Bull</b><span>Friends for Nearly 20 Years</span></figcaption>
+          <figcaption class="who"><b>Mike &amp; Ashley Bull</b><span>Friends of Gina</span></figcaption>
         </div>
       </figure>
     </div>
@@ -1862,6 +1862,7 @@ footer::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;back
     grabOff = e.clientY - thumb.getBoundingClientRect().top;
     bar.classList.add('drag');
     document.body.classList.add('sbardrag');
+    document.documentElement.style.scrollBehavior = 'auto';   // follow the pointer 1:1
     clearTimeout(timer);
     thumb.setPointerCapture(e.pointerId);
     e.preventDefault();
@@ -1872,7 +1873,7 @@ footer::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;back
     var span = trackH - thumbH;
     if (span <= 0) return;
     var t = Math.min(Math.max(e.clientY - grabOff - PAD, 0), span);
-    window.scrollTo(0, (t / span) * range);
+    window.scrollTo({top: (t / span) * range, behavior: 'instant'});
     place();                              // scroll events are coalesced; do not wait
     e.preventDefault();
   });
@@ -1882,6 +1883,7 @@ footer::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;back
     dragging = false;
     bar.classList.remove('drag');
     document.body.classList.remove('sbardrag');
+    document.documentElement.style.scrollBehavior = '';
     if (e && e.pointerId != null && thumb.hasPointerCapture(e.pointerId)) {
       thumb.releasePointerCapture(e.pointerId);
     }
