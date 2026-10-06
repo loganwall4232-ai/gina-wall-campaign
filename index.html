@@ -586,6 +586,12 @@ body.locked{overflow:hidden}
   display:flex;gap:clamp(14px,1.8vw,20px);align-items:flex-start;
   box-shadow:0 14px 30px -24px rgba(10,20,40,.5);
 }
+/* The odd card out in a two-up grid sits centred under the pairs, at the
+   same width as its neighbours, instead of leaving a hole beside it. */
+@media (min-width:700px){
+  .endcard--wide{grid-column:1 / -1;justify-self:center;
+    width:calc(50% - clamp(14px,2vw,22px) / 2)}
+}
 .endcard .face{
   flex:none;width:clamp(64px,7vw,86px);aspect-ratio:1;
   border-radius:50%;overflow:hidden;background:var(--navy);
@@ -1199,6 +1205,13 @@ footer::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;back
         <div class="said">
           <p>“When I think about the qualities that matter in public service, I think about courage, the willingness to face difficult challenges. I think about conviction, standing firmly by the principles you believe in. And I think about confidence, the ability to move forward and work for the people you represent. Those are the qualities I see in Gina Wall. That is why I’m proud to stand behind Gina and the work she is doing for Alaska.”</p>
           <figcaption class="who"><b>Bill Douthit</b><span>26-Year ASD Elementary Teacher</span></figcaption>
+        </div>
+      </figure>
+      <figure class="endcard endcard--wide">
+        <div class="face"><img src="img/end-brian-480.webp" width="480" height="480" loading="lazy" decoding="async" alt="Brian Mason"></div>
+        <div class="said">
+          <p>“Our community is built around people who help one another out and who look out for their neighbors. As a voter, I long for a representative who will do the same. I am proud to support Gina Wall because I know she will do the hard work of legislating. She will build bridges with other representatives, represent the needs of her constituents, and work collectively with all legislators to do what’s right for our community. Gina understands how vital our schools are, that we need to support those who support our communities, and that Alaska will do best when we invest in a future that provides opportunity for future generations. Alaska faces challenges, without a doubt, but we also have such great opportunities! Gina Wall will work towards solutions and a vision for something better, and this is why I so eagerly support her candidacy.”</p>
+          <figcaption class="who"><b>Brian Mason</b><span>21-Year Public Educator</span></figcaption>
         </div>
       </figure>
     </div>
